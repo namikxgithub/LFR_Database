@@ -1,0 +1,78 @@
+#include <ENGG1500Lib.h>
+#include <Servo.h>
+
+//Distances from the centroid of the robot to the centre of each sensor in mm
+float x1 = -22.5;
+float x2 = -7.5;
+float x3 = 7.5;
+float x4 = 22.5;
+//Variables to store each data point in
+float w1;
+float w2;
+float w3;
+float w4;
+//Variables for storing the numerator and denominator of Equation 1
+float den = 0;
+float num = 0;
+int var =1;
+
+
+#define ENA 5
+#define ENB 6
+#define IN1 8
+#define IN2 9
+#define IN3 10
+#define IN4 11
+#define ECHO 12
+#define TRIG 7
+
+int servoPin = 13;
+
+
+void setup() {
+  pinMode(ECHO,INPUT); //Initialise pin 12 as an input
+  pinMode(TRIG,OUTPUT); //Initialise pin 7 as an output
+
+  pinMode(5,OUTPUT); //set ENA as an output
+  pinMode(6,OUTPUT); //set ENB as an output
+  pinMode(8,OUTPUT); //set IN1 as an output
+  pinMode(9,OUTPUT); //set IN2 as an output
+  pinMode(10,OUTPUT); //set IN3 as an output
+  pinMode(11,OUTPUT); //set IN4 as an output
+
+  pinMode(A0, INPUT); // left-most sensor
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
+  pinMode(A3, INPUT); // right most sensor
+
+  Serial.begin(9600); //begin serial communication
+  Serial.println("PWM,ENC_L,ENC_R");
+}
+
+
+void loop() {
+
+
+  w1 = analogRead(A0);
+  w2 = analogRead(A1);
+  w3 = analogRead(A2);
+  w4 = analogRead(A3);
+  
+  num = ((w1*x1)+(w2*x2)+(w3*x3)+(w4*x4));
+  den = (w1+w2+w3+w4);
+  
+  float devi = (num/den);
+  Serial.print("Distance from line = ");
+  Serial.println(devi);
+  delay(1000); // 50ms delay
+float  pwml = 100 + var*devi;
+float pwmr = 100 - var*devi;
+
+  digitalWrite(5,1);
+  digitalWrite(6,1);
+  analogWrite(8,pwml);
+  analogWrite(9,0);
+  analogWrite(10,pwmr);
+  analogWrite(11,0);
+  Serial.println(pwml);
+  Serial.println(pwmr);
